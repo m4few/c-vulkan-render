@@ -1,12 +1,20 @@
 #include <GLFW/glfw3.h>
-#include "window.h"
 #include <stdio.h>
+#include <vulkan/vulkan.h>
+
+
+#include "window.h"
+#include "vulkan.h"
 
 int main(){
+  // start window
   glfwInit();
-
-  // createwindow
   GLFWwindow* RENDER_WINDOW = windowInit(400,400);
+  
+  // start vulkan instance
+  VkInstance instance;
+  vulkanInit(instance);
+  
 
   //while the exit flag is down, wait
   while(!glfwWindowShouldClose(RENDER_WINDOW)){

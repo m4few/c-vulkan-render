@@ -18,7 +18,7 @@ GLFWwindow* windowInit(uint16_t winX, uint16_t winY){
   
 
   if(!glfwInit()){
-    printf("FUCK\n"); 
+    printf("ITS BROKEN AGAIN SEE window.h\n"); 
   }
 
   //extra window constnats
