@@ -38,5 +38,6 @@ GLFWwindow* windowInit(uint16_t winX, uint16_t winY){
 int windowExit(GLFWwindow* window){
   glfwDestroyWindow(window);
   glfwTerminate();
+  return EXIT_SUCCESS;
 }
 

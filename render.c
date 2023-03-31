@@ -4,7 +4,8 @@
 
 
 #include "window.h"
-#include "vulkan.h"
+#include "vulkanInstance.h"
+
 
 int main(){
   // start window
@@ -14,7 +15,6 @@ int main(){
   // start vulkan instance
   VkInstance instance;
   vulkanInit(instance);
-  
 
   //while the exit flag is down, wait
   while(!glfwWindowShouldClose(RENDER_WINDOW)){
