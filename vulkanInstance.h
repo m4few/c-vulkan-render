@@ -5,11 +5,13 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#include "vulkanInstanceDevice.h"
 #include "vulkanInstanceHelper.h"
 
 const char* const VALIDATION_LAYERS = {"VK_LAYER_KHRONOS_validation"};
 uint8_t VALIDATION_LAYER_COUNT = 1;
 
+// TODO: ADD MESSAGE CALLBACK FOR DEBUG INFO
 #ifdef DEBUG
   bool ENABLE_VALIDATION = true;
 #else
@@ -50,7 +52,7 @@ bool validationSupported(){
 
 
 // NOTE: INITIALISE ALL STRUCTS TO SET ALL VALUES TO 0, THIS PREVENTS SEGFAULTS
-int vulkanInit(VkInstance instance){
+int vulkanMakeInstance(VkInstance instance){
   // check for validation layer support
   // this stuff is all optional, don't worry about it
   VkApplicationInfo vkInfo = {};
@@ -101,8 +103,15 @@ int vulkanInit(VkInstance instance){
 }
 
 
+int vulkanInit(VkInstance instance){
+  vulkanMakeInstance(instance);
+  deviceChoose(instance);
+  return EXIT_SUCCESS;
+}
+
+
 int vulkanCleanup(GLFWwindow* window, VkInstance instance) {
     vkDestroyInstance(instance, NULL);
-    windowExit(window); 
+    windowExit(window);
     return EXIT_SUCCESS;
 }
