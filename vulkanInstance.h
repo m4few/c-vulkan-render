@@ -104,8 +104,8 @@ int vulkanInit(VkInstance *instance) {
   return EXIT_SUCCESS;
 }
 
-int vulkanCleanup(GLFWwindow *window, VkInstance instance) {
-  vkDestroyInstance(instance, NULL);
+int vulkanCleanup(GLFWwindow *window, VkInstance *instance) {
+  vkDestroyInstance(*instance, NULL);
   windowExit(window);
   return EXIT_SUCCESS;
 }
