@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
 
 #include "vulkanInstanceHelper.h"
 #include "window.h"
@@ -48,7 +49,7 @@ bool validationSupported() {
 }
 
 // NOTE: INITIALISE ALL STRUCTS TO SET ALL VALUES TO 0, THIS PREVENTS SEGFAULTS
-int vulkanMakeInstance(VkInstance instance) {
+int vulkanMakeInstance(VkInstance *instance) {
   // check for validation layer support
   // this stuff is all optional, don't worry about it
   VkApplicationInfo vkInfo = {};
@@ -88,8 +89,7 @@ int vulkanMakeInstance(VkInstance instance) {
 
   // this creates the instance
   // (info, custom callback, ptr to new instance)
-  VkInstance *instPtr = &instance;
-  VkResult result = vkCreateInstance(&vkCreateInfo, NULL, instPtr);
+  VkResult result = vkCreateInstance(&vkCreateInfo, NULL, instance);
 
   if (result != VK_SUCCESS) {
     printf("ERR: vulkanInit failed", NULL, 2);
@@ -98,10 +98,8 @@ int vulkanMakeInstance(VkInstance instance) {
   return EXIT_SUCCESS;
 }
 
-int vulkanInit(VkInstance instance) {
-  printf("yes\n");
+int vulkanInit(VkInstance *instance) {
   vulkanMakeInstance(instance);
-  printf("yes\n");
   deviceChoose(instance);
   return EXIT_SUCCESS;
 }
