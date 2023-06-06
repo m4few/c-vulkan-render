@@ -58,10 +58,11 @@ bool deviceIsUsable(VkPhysicalDevice device) {
 // TODO: FAVOUR DISCRETE GPUS OVER INTEGRATED INSTEAD OF JUST CHOOSING THE FIRST
 // ONE FOUND DO THIS BY RANKING DEVICE SUITABILITY
 VkPhysicalDevice deviceChoose(VkInstance instance) {
-
   uint32_t deviceCount = 0;
   VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+  printf("before\n");
   vkEnumeratePhysicalDevices(instance, &deviceCount, NULL); // iterate and count
+  printf("after\n");
 
   // make sure a physical device exists
   if (deviceCount == 0) {

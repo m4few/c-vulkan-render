@@ -6,6 +6,7 @@
 #include <vulkan/vulkan.h>
 
 #include "vulkanInstanceHelper.h"
+#include "window.h"
 
 const char *const VALIDATION_LAYERS = {"VK_LAYER_KHRONOS_validation"};
 uint8_t VALIDATION_LAYER_COUNT = 1;
@@ -34,18 +35,15 @@ bool validationSupported() {
 
     bool found = false;
     for (uint8_t j = 0; j < realLayerCount; j++) {
-
       if (strEq(&VALIDATION_LAYERS[i], layers[j].layerName)) {
         found = true;
         break;
       }
     }
-
     if (found == false) {
       return false;
     }
   }
-
   return true;
 }
 
@@ -78,10 +76,10 @@ int vulkanMakeInstance(VkInstance instance) {
   // add validation information to vkCreateInfo, or don't
   if (ENABLE_VALIDATION == true) {
     if (!validationSupported()) {
-      printf("WARNING: VALIDATION LAYERS NOT SUPPORTED, SKIPPING");
+      printf("WARNING: VALIDATION LAYERS NOT SUPPORTED, SKIPPING\n");
 
     } else {
-      printf("NOTE: VALIDATION LAYERS ARE ON");
+      printf("NOTE: VALIDATION LAYERS ARE ON\n");
       uint8_t realLayerCount;
       vkCreateInfo.enabledLayerCount = VALIDATION_LAYER_COUNT;
       vkCreateInfo.ppEnabledLayerNames = &VALIDATION_LAYERS;
@@ -101,13 +99,15 @@ int vulkanMakeInstance(VkInstance instance) {
 }
 
 int vulkanInit(VkInstance instance) {
+  printf("yes\n");
   vulkanMakeInstance(instance);
+  printf("yes\n");
   deviceChoose(instance);
   return EXIT_SUCCESS;
 }
 
 int vulkanCleanup(GLFWwindow *window, VkInstance instance) {
   vkDestroyInstance(instance, NULL);
-  // windowExit(window);
+  windowExit(window);
   return EXIT_SUCCESS;
 }
