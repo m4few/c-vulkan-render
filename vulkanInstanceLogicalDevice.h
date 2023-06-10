@@ -6,9 +6,10 @@
 #include "vulkanInstance.h"
 #include "vulkanInstancePhysicalDevice.h"
 
-VkDevice deviceCreateLogical(VkPhysicalDevice *physicalDevice) {
+VkDevice deviceCreateLogical(VkPhysicalDevice *physicalDevice,
+                             VkSurfaceKHR *surface) {
   VkDevice device;
-  QueueFamilyIndices indices = findQueueFamilies(*physicalDevice);
+  QueueFamilyIndices indices = findQueueFamilies(physicalDevice, surface);
 
   // queue creation info
   VkDeviceQueueCreateInfo queueCreateInfo = {};
@@ -48,9 +49,10 @@ VkDevice deviceCreateLogical(VkPhysicalDevice *physicalDevice) {
   return device;
 }
 
-VkQueue deviceGetQueueHandles(VkPhysicalDevice *pDevice, VkDevice *lDevice) {
+VkQueue deviceGetQueueHandles(VkPhysicalDevice *pDevice, VkDevice *lDevice,
+                              VkSurfaceKHR *surface) {
   VkQueue graphicQueue;
-  QueueFamilyIndices indices = findQueueFamilies(*pDevice);
+  QueueFamilyIndices indices = findQueueFamilies(pDevice, surface);
   vkGetDeviceQueue(*lDevice, indices.graphicsQueue.value, 0, &graphicQueue);
   return graphicQueue;
 }

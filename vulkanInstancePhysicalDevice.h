@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
 
 #include "vulkanInstanceHelper.h"
 
@@ -11,36 +12,42 @@
 // think of it as a hashmap
 typedef struct {
   uint32_opt graphicsQueue;
+  uint32_opt presentationQueue;
 } QueueFamilyIndices;
-
-bool hasAllQueues(QueueFamilyIndices indices) {
-  bool hasQs = true;
-  if (indices.graphicsQueue.exists == false) {
-    hasQs = false;
-  }
-
-  return hasQs;
-}
 
 const QueueFamilyIndices QUEUE_INDICES_DEFAULT = {{false, 0}};
 
+bool hasAllQueues(QueueFamilyIndices indices) {
+  return indices.graphicsQueue.exists && indices.presentationQueue.exists;
+}
+
 // find queue families with various bits enabled
-QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) {
+QueueFamilyIndices findQueueFamilies(VkPhysicalDevice *device,
+                                     VkSurfaceKHR *surface) {
   QueueFamilyIndices indices = QUEUE_INDICES_DEFAULT;
 
   uint32_t queueFamilyCount = 0;
-  vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, NULL);
+  vkGetPhysicalDeviceQueueFamilyProperties(*device, &queueFamilyCount, NULL);
+
   VkQueueFamilyProperties queueFamilies[queueFamilyCount];
-  vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount,
+  vkGetPhysicalDeviceQueueFamilyProperties(*device, &queueFamilyCount,
                                            queueFamilies);
 
-  // look for a graphics queue
+  // look for a graphics queue and a presentation queue
   for (uint32_t i = 0; i < queueFamilyCount; i++) {
+    // graphics queue
     if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-      indices.graphicsQueue.value = i;
-      indices.graphicsQueue.exists = true;
+      uint32_optSet(&indices.graphicsQueue, i);
     }
 
+    // presentation queue
+    VkBool32 presExists;
+    vkGetPhysicalDeviceSurfaceSupportKHR(*device, i, *surface, &presExists);
+    if (presExists) {
+      uint32_optSet(&indices.presentationQueue, i);
+    }
+
+    // make sure all queues exist
     if (hasAllQueues(indices)) {
       break;
     }
@@ -50,14 +57,14 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) {
 }
 
 // a device is usable if it has a graphics queue
-bool deviceIsUsable(VkPhysicalDevice device) {
-  QueueFamilyIndices indices = findQueueFamilies(device);
+bool deviceIsUsable(VkPhysicalDevice *device, VkSurfaceKHR *surface) {
+  QueueFamilyIndices indices = findQueueFamilies(device, surface);
   return hasAllQueues(indices); // see the todo
 }
 
 // TODO: FAVOUR DISCRETE GPUS OVER INTEGRATED INSTEAD OF JUST CHOOSING THE FIRST
 // ONE FOUND DO THIS BY RANKING DEVICE SUITABILITY
-VkPhysicalDevice deviceChoose(VkInstance *instance) {
+VkPhysicalDevice deviceChoose(VkInstance *instance, VkSurfaceKHR *surface) {
   uint32_t deviceCount = 0;
   VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
   vkEnumeratePhysicalDevices(*instance, &deviceCount,
@@ -74,7 +81,7 @@ VkPhysicalDevice deviceChoose(VkInstance *instance) {
 
   // set the first usable device as the main device
   for (uint32_t i; i < deviceCount; i++) {
-    if (deviceIsUsable(devices[i])) {
+    if (deviceIsUsable(&devices[i], surface)) {
       physicalDevice = devices[i];
       break;
     }

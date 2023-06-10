@@ -12,7 +12,7 @@ int main() {
 
   // start vulkan instance
   VkInstance instance;
-  vulkanInit(&instance);
+  vulkanInit(&instance, RENDER_WINDOW);
 
   // while the exit flag is down, wait
   while (!glfwWindowShouldClose(RENDER_WINDOW)) {

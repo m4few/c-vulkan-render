@@ -98,26 +98,31 @@ int vulkanMakeInstance(VkInstance *instance) {
   return EXIT_SUCCESS;
 }
 
-int vulkanInit(VkInstance *instance) {
+int vulkanInit(VkInstance *instance, GLFWwindow *window) {
 
   vulkanMakeInstance(instance);
 
   // TODO: abstract this in to one function call (eg vulkanMakeDevice??)
 
+  // make surface
+  VkSurfaceKHR surface = windowCreateSurface(instance, window);
+
   // get real device and make logical device
-  VkPhysicalDevice physicalDevice = deviceChoose(instance);
-  VkDevice logicalDevice = deviceCreateLogical(&physicalDevice);
+  VkPhysicalDevice physicalDevice = deviceChoose(instance, &surface);
+  VkDevice logicalDevice = deviceCreateLogical(&physicalDevice, &surface);
 
   // get graphics queue handle
   VkQueue graphicsQueue =
-      deviceGetQueueHandles(&physicalDevice, &logicalDevice);
+      deviceGetQueueHandles(&physicalDevice, &logicalDevice, &surface);
 
   return EXIT_SUCCESS;
 }
 
-int vulkanCleanup(GLFWwindow *window, VkInstance *instance, VkDevice *lDevice) {
-  vkDestroyInstance(*instance, NULL);
+int vulkanCleanup(GLFWwindow *window, VkInstance *instance, VkDevice *lDevice,
+                  VkSurfaceKHR *surface) {
+  vkDestroySurfaceKHR(*instance, *surface, NULL);
   vkDestroyDevice(*lDevice, NULL);
+  vkDestroyInstance(*instance, NULL);
   windowExit(window);
   return EXIT_SUCCESS;
 }
