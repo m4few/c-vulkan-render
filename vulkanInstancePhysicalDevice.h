@@ -3,9 +3,12 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
 
+#include "vulkanInstance.h"
 #include "vulkanInstanceHelper.h"
 
 // the indicies of various queue families
@@ -20,6 +23,33 @@ const QueueFamilyIndices QUEUE_INDICES_DEFAULT = {{false, 0}};
 
 bool hasAllQueues(QueueFamilyIndices indices) {
   return indices.graphicsQueue.exists && indices.presentationQueue.exists;
+}
+
+bool hasAllExtensions(VkPhysicalDevice *device) {
+  uint32_t extensionCount;
+  vkEnumerateDeviceExtensionProperties(*device, NULL, &extensionCount, NULL);
+
+  VkExtensionProperties currentDeviceExtensions[extensionCount];
+  vkEnumerateDeviceExtensionProperties(*device, NULL, &extensionCount,
+                                       currentDeviceExtensions);
+
+  // ensure all required extensions are supported by the candidate device
+  // TODO: MAKE THIS SEARCH FASTER
+  uint8_t found = 0; // NOTE: THERE IS POTENTIAL FOR ERROR HERE
+  for (uint8_t i = 0; i < DEVICE_EXTENSION_COUNT; i++) {
+    for (uint32_t j = 0; j < extensionCount; j++) {
+      if (strcmp(DEVICE_EXTENSIONS[i],
+                 currentDeviceExtensions[j].extensionName) == 0) {
+        found++;
+        break;
+      }
+    }
+  }
+
+  if (found < DEVICE_EXTENSION_COUNT) {
+    return false;
+  }
+  return true;
 }
 
 // find queue families with various bits enabled
@@ -60,7 +90,7 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice *device,
 // a device is usable if it has a graphics queue
 bool deviceIsUsable(VkPhysicalDevice *device, VkSurfaceKHR *surface) {
   QueueFamilyIndices indices = findQueueFamilies(device, surface);
-  return hasAllQueues(indices); // see the todo
+  return hasAllQueues(indices) && hasAllExtensions(device); // see the todo
 }
 
 // TODO: FAVOUR DISCRETE GPUS OVER INTEGRATED INSTEAD OF JUST CHOOSING THE FIRST
