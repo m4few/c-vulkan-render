@@ -15,6 +15,7 @@ typedef struct {
   uint32_opt presentationQueue;
 } QueueFamilyIndices;
 
+const uint8_t QUEUE_COUNT = 2;
 const QueueFamilyIndices QUEUE_INDICES_DEFAULT = {{false, 0}};
 
 bool hasAllQueues(QueueFamilyIndices indices) {

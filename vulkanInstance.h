@@ -112,7 +112,7 @@ int vulkanInit(VkInstance *instance, GLFWwindow *window) {
   VkDevice logicalDevice = deviceCreateLogical(&physicalDevice, &surface);
 
   // get graphics queue handle
-  VkQueue graphicsQueue =
+  QueueHandles graphicsQueue =
       deviceGetQueueHandles(&physicalDevice, &logicalDevice, &surface);
 
   return EXIT_SUCCESS;
