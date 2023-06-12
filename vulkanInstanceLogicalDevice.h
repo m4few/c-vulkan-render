@@ -13,29 +13,43 @@ typedef struct {
   VkQueue presentationQueue;
 } QueueHandles;
 
-typedef struct {
-  VkDeviceQueueCreateInfo graphicsQueue;
-  VkDeviceQueueCreateInfo presentationQueue;
-} QueueCreateInfos;
-
 VkDevice deviceCreateLogical(VkPhysicalDevice *physicalDevice,
                              VkSurfaceKHR *surface) {
   VkDevice device;
   QueueFamilyIndices indices = findQueueFamilies(physicalDevice, surface);
 
-  // queue creation info
-  // THE HACK STARTS HERE
-  QueueCreateInfos queueCreationInfos;
+  uint8_t adjustedQueueCount = 0;
+  uint32_t uniqueQueueIndices[QUEUE_COUNT];
   for (uint8_t i = 0; i < QUEUE_COUNT; i++) {
+    uint32_t currentIndex = (&(indices.graphicsQueue) + 1)->value;
+
+    // check previous to ensure uniqueness
+    bool duplicateFound = false;
+    for (uint8_t j = 0; j < i; j++) {
+      if (uniqueQueueIndices[j] == currentIndex) {
+        duplicateFound = true;
+        break;
+      }
+    }
+
+    // if unique count and add to array
+    if (!duplicateFound) {
+      uniqueQueueIndices[i] = currentIndex;
+      adjustedQueueCount++;
+    }
+  }
+
+  // queue creation info
+  VkDeviceQueueCreateInfo creationInfos[adjustedQueueCount];
+  for (uint8_t i = 0; i < adjustedQueueCount; i++) {
     VkDeviceQueueCreateInfo queueCreateInfo = {};
     queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueCreateInfo.queueFamilyIndex = (&(indices.graphicsQueue) + i)->value;
+    queueCreateInfo.queueFamilyIndex = uniqueQueueIndices[i];
     queueCreateInfo.queueCount = 1;
-
     float queuePriority = 1.0f;
     queueCreateInfo.pQueuePriorities = &queuePriority;
 
-    *(&(queueCreationInfos.graphicsQueue) + i) = queueCreateInfo;
+    creationInfos[i] = queueCreateInfo;
   }
 
   // enabled logical device feature info
@@ -45,9 +59,8 @@ VkDevice deviceCreateLogical(VkPhysicalDevice *physicalDevice,
   VkDeviceCreateInfo logicalDeviceCreateInfo = {};
 
   logicalDeviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-  logicalDeviceCreateInfo.pQueueCreateInfos =
-      &(queueCreationInfos.graphicsQueue);
-  logicalDeviceCreateInfo.queueCreateInfoCount = QUEUE_COUNT;
+  logicalDeviceCreateInfo.pQueueCreateInfos = creationInfos;
+  logicalDeviceCreateInfo.queueCreateInfoCount = adjustedQueueCount;
   logicalDeviceCreateInfo.pEnabledFeatures = &deviceFeatures;
   logicalDeviceCreateInfo.enabledExtensionCount = 0;
 
