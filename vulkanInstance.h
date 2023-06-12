@@ -10,13 +10,16 @@
 #include "window.h"
 
 const char *const VALIDATION_LAYERS = {"VK_LAYER_KHRONOS_validation"};
-uint8_t VALIDATION_LAYER_COUNT = 1;
+const uint8_t VALIDATION_LAYER_COUNT = 1;
+
+const char DEVICE_EXTENSIONS[1][256] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+const uint8_t DEVICE_EXTENSION_COUNT = 1;
 
 // TODO: ADD MESSAGE CALLBACK FOR DEBUG INFO
 #ifdef DEBUG
-bool ENABLE_VALIDATION = true;
+const bool ENABLE_VALIDATION = true;
 #else
-bool ENABLE_VALIDATION = false;
+const bool ENABLE_VALIDATION = false;
 #endif // DEBUG
 
 #include "vulkanInstanceLogicalDevice.h"
