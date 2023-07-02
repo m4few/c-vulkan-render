@@ -38,7 +38,7 @@ bool hasAllExtensions(VkPhysicalDevice *device) {
   uint8_t found = 0; // NOTE: THERE IS POTENTIAL FOR ERROR HERE
   for (uint8_t i = 0; i < DEVICE_EXTENSION_COUNT; i++) {
     for (uint32_t j = 0; j < extensionCount; j++) {
-      if (strcmp(DEVICE_EXTENSIONS[i],
+      if (strcmp(DEVICE_EXTENSIONS_ARR[i],
                  currentDeviceExtensions[j].extensionName) == 0) {
         found++;
         break;
