@@ -6,13 +6,13 @@
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
 
-#include "vulkanInstanceHelper.h"
-#include "window.h"
-
-const char *const VALIDATION_LAYERS = {"VK_LAYER_KHRONOS_validation"};
+// NOTE: this seems hacky, its because create structs want a weird ptr type
+const char VALIDATION_LAYERS_ARR[1][256] = {"VK_LAYER_KHRONOS_validation"};
+const char *const VALIDATION_LAYERS = {VALIDATION_LAYERS_ARR[0]};
 const uint8_t VALIDATION_LAYER_COUNT = 1;
 
-const char DEVICE_EXTENSIONS[1][256] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+const char DEVICE_EXTENSIONS_ARR[1][256] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+const char *const DEVICE_EXTENSIONS = {DEVICE_EXTENSIONS_ARR[0]};
 const uint8_t DEVICE_EXTENSION_COUNT = 1;
 
 // TODO: ADD MESSAGE CALLBACK FOR DEBUG INFO
@@ -22,7 +22,9 @@ const bool ENABLE_VALIDATION = true;
 const bool ENABLE_VALIDATION = false;
 #endif // DEBUG
 
+#include "vulkanInstanceHelper.h"
 #include "vulkanInstanceLogicalDevice.h"
+#include "window.h"
 
 // check if all the validation layers actually exist
 bool validationSupported() {
@@ -39,7 +41,7 @@ bool validationSupported() {
 
     bool found = false;
     for (uint8_t j = 0; j < realLayerCount; j++) {
-      if (strEq(&VALIDATION_LAYERS[i], layers[j].layerName)) {
+      if (strcmp(VALIDATION_LAYERS_ARR[i], layers[j].layerName) == 0) {
         found = true;
         break;
       }
@@ -89,7 +91,6 @@ int vulkanMakeInstance(VkInstance *instance) {
       vkCreateInfo.ppEnabledLayerNames = &VALIDATION_LAYERS;
     }
   }
-
   // this creates the instance
   // (info, custom callback, ptr to new instance)
   VkResult result = vkCreateInstance(&vkCreateInfo, NULL, instance);
@@ -102,9 +103,7 @@ int vulkanMakeInstance(VkInstance *instance) {
 }
 
 int vulkanInit(VkInstance *instance, GLFWwindow *window) {
-
   vulkanMakeInstance(instance);
-
   // TODO: abstract this in to one function call (eg vulkanMakeDevice??)
 
   // make surface

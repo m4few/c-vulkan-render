@@ -62,7 +62,10 @@ VkDevice deviceCreateLogical(VkPhysicalDevice *physicalDevice,
   logicalDeviceCreateInfo.pQueueCreateInfos = creationInfos;
   logicalDeviceCreateInfo.queueCreateInfoCount = adjustedQueueCount;
   logicalDeviceCreateInfo.pEnabledFeatures = &deviceFeatures;
-  logicalDeviceCreateInfo.enabledExtensionCount = 0;
+
+  // extensions NOTE: WEIRD CAST HERE, MAYBE COULD CAUSE PROBLEMS LATER
+  logicalDeviceCreateInfo.enabledExtensionCount = DEVICE_EXTENSION_COUNT;
+  logicalDeviceCreateInfo.ppEnabledExtensionNames = &DEVICE_EXTENSIONS;
 
   // validation
   if (ENABLE_VALIDATION == true) {
