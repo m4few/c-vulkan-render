@@ -10,6 +10,7 @@
 
 #include "vulkanInstance.h"
 #include "vulkanInstanceHelper.h"
+#include "vulkanSwapchain.h"
 
 // the indicies of various queue families
 // think of it as a hashmap
@@ -21,11 +22,11 @@ typedef struct {
 const uint8_t QUEUE_COUNT = 2;
 const QueueFamilyIndices QUEUE_INDICES_DEFAULT = {{false, 0}};
 
-bool hasAllQueues(QueueFamilyIndices indices) {
+bool deviceHasAllQueues(QueueFamilyIndices indices) {
   return indices.graphicsQueue.exists && indices.presentationQueue.exists;
 }
 
-bool hasAllExtensions(VkPhysicalDevice *device) {
+bool deviceHasAllExtensions(VkPhysicalDevice *device) {
   uint32_t extensionCount;
   vkEnumerateDeviceExtensionProperties(*device, NULL, &extensionCount, NULL);
 
@@ -46,10 +47,16 @@ bool hasAllExtensions(VkPhysicalDevice *device) {
     }
   }
 
+  // TODO: clean this up
   if (found < DEVICE_EXTENSION_COUNT) {
     return false;
   }
   return true;
+}
+
+bool deviceHasUsableSwapchain(VkPhysicalDevice *device, VkSurfaceKHR *surface) {
+  swapchainDetails details = swapchainGetSupport(*device, *surface);
+  return details.surfFormatCount > 0 && details.presentModeCount > 0;
 }
 
 // find queue families with various bits enabled
@@ -79,7 +86,7 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice *device,
     }
 
     // make sure all queues exist
-    if (hasAllQueues(indices)) {
+    if (deviceHasAllQueues(indices)) {
       break;
     }
   }
@@ -90,7 +97,8 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice *device,
 // a device is usable if it has a graphics queue
 bool deviceIsUsable(VkPhysicalDevice *device, VkSurfaceKHR *surface) {
   QueueFamilyIndices indices = findQueueFamilies(device, surface);
-  return hasAllQueues(indices) && hasAllExtensions(device); // see the todo
+  return deviceHasAllQueues(indices) && deviceHasAllExtensions(device) &&
+         deviceHasUsableSwapchain(device, surface);
 }
 
 // TODO: FAVOUR DISCRETE GPUS OVER INTEGRATED INSTEAD OF JUST CHOOSING THE FIRST
