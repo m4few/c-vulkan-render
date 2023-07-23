@@ -18,14 +18,16 @@ typedef struct {
   uint32_opt presentationQueue;
 } QueueFamilyIndices;
 
+#include "vulkanSwapchain.h"
+
 const uint8_t QUEUE_COUNT = 2;
 const QueueFamilyIndices QUEUE_INDICES_DEFAULT = {{false, 0}};
 
-bool hasAllQueues(QueueFamilyIndices indices) {
+bool deviceHasAllQueues(QueueFamilyIndices indices) {
   return indices.graphicsQueue.exists && indices.presentationQueue.exists;
 }
 
-bool hasAllExtensions(VkPhysicalDevice *device) {
+bool deviceHasAllExtensions(VkPhysicalDevice *device) {
   uint32_t extensionCount;
   vkEnumerateDeviceExtensionProperties(*device, NULL, &extensionCount, NULL);
 
@@ -46,10 +48,16 @@ bool hasAllExtensions(VkPhysicalDevice *device) {
     }
   }
 
+  // TODO: clean this up
   if (found < DEVICE_EXTENSION_COUNT) {
     return false;
   }
   return true;
+}
+
+bool deviceHasUsableSwapchain(VkPhysicalDevice *device, VkSurfaceKHR *surface) {
+  swapchainDetails details = swapchainGetSupport(*device, *surface);
+  return details.surfFormatCount > 0 && details.presentModeCount > 0;
 }
 
 // find queue families with various bits enabled
@@ -79,7 +87,7 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice *device,
     }
 
     // make sure all queues exist
-    if (hasAllQueues(indices)) {
+    if (deviceHasAllQueues(indices)) {
       break;
     }
   }
@@ -90,7 +98,8 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice *device,
 // a device is usable if it has a graphics queue
 bool deviceIsUsable(VkPhysicalDevice *device, VkSurfaceKHR *surface) {
   QueueFamilyIndices indices = findQueueFamilies(device, surface);
-  return hasAllQueues(indices) && hasAllExtensions(device); // see the todo
+  return deviceHasAllQueues(indices) && deviceHasAllExtensions(device) &&
+         deviceHasUsableSwapchain(device, surface);
 }
 
 // TODO: FAVOUR DISCRETE GPUS OVER INTEGRATED INSTEAD OF JUST CHOOSING THE FIRST
@@ -123,4 +132,63 @@ VkPhysicalDevice deviceChoose(VkInstance *instance, VkSurfaceKHR *surface) {
   }
 
   return physicalDevice;
+}
+
+VkSwapchainKHR deviceSwapchainCreate(GLFWwindow *window, VkSurfaceKHR *surface,
+                                     VkPhysicalDevice *pDevice,
+                                     VkDevice *device) {
+
+  QueueFamilyIndices indices = findQueueFamilies(pDevice, surface);
+  swapchainDetails swapchainSupport = swapchainGetSupport(*pDevice, *surface);
+  VkSurfaceFormatKHR surfaceFormat = swapchainChooseFormat(swapchainSupport);
+  VkPresentModeKHR presentMode = swapchainChoosePresentMode(swapchainSupport);
+  VkExtent2D extent = swapchainChooseSwapExtent(window, swapchainSupport);
+
+  // NOTE: THIS IS AN ISSUE OF SOME DESCRIPTION, MIN BIGGER THAN MAX
+  // THIS COULD CAUSE ISSUES IN THE FUTURE (IE WITH OTHER DEVICES)
+  uint32_t imageCount = swapchainSupport.surfCapabilities.minImageCount + 1;
+  if (swapchainSupport.surfCapabilities.minImageCount > 0 &&
+      imageCount > swapchainSupport.surfCapabilities.maxImageCount &&
+      swapchainSupport.surfCapabilities.maxImageCount != 0) {
+    imageCount = swapchainSupport.surfCapabilities.maxImageCount;
+  }
+
+  VkSwapchainCreateInfoKHR createInfo = {};
+  createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+  createInfo.surface = *surface;
+  createInfo.minImageCount = imageCount;
+  createInfo.imageFormat = surfaceFormat.format;
+  createInfo.imageColorSpace = surfaceFormat.colorSpace;
+  createInfo.imageExtent = extent;
+  createInfo.imageArrayLayers = 1;
+  createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+  if (indices.graphicsQueue.value != indices.presentationQueue.value) {
+    createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+    createInfo.queueFamilyIndexCount = 2;
+
+    uint32_t queueIndices[] = {indices.graphicsQueue.value,
+                               indices.presentationQueue.value};
+
+    createInfo.pQueueFamilyIndices = queueIndices;
+
+  } else {
+    createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    createInfo.queueFamilyIndexCount = 0;
+    createInfo.pQueueFamilyIndices = NULL;
+  }
+
+  createInfo.preTransform = swapchainSupport.surfCapabilities.currentTransform;
+  createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+  createInfo.presentMode = presentMode;
+  createInfo.clipped = VK_TRUE;
+  createInfo.oldSwapchain = VK_NULL_HANDLE;
+
+  VkSwapchainKHR swapchain;
+  if (vkCreateSwapchainKHR(*device, &createInfo, NULL, &swapchain) !=
+      VK_SUCCESS) {
+    printf("%s\n", "failed to create swapchain!");
+  }
+
+  return swapchain;
 }
