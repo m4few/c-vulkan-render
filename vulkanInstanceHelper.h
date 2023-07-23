@@ -43,3 +43,8 @@ bool strEq(const char *str1, const char *str2) {
 
   return equal;
 }
+
+int clamp(int x, int min, int max) {
+  const int t = x < min ? min : x;
+  return t > max ? max : t;
+}
