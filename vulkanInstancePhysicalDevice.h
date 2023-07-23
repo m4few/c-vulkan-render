@@ -10,7 +10,6 @@
 
 #include "vulkanInstance.h"
 #include "vulkanInstanceHelper.h"
-#include "vulkanSwapchain.h"
 
 // the indicies of various queue families
 // think of it as a hashmap
@@ -18,6 +17,8 @@ typedef struct {
   uint32_opt graphicsQueue;
   uint32_opt presentationQueue;
 } QueueFamilyIndices;
+
+#include "vulkanSwapchain.h"
 
 const uint8_t QUEUE_COUNT = 2;
 const QueueFamilyIndices QUEUE_INDICES_DEFAULT = {{false, 0}};
@@ -131,4 +132,61 @@ VkPhysicalDevice deviceChoose(VkInstance *instance, VkSurfaceKHR *surface) {
   }
 
   return physicalDevice;
+}
+
+VkSwapchainKHR deviceSwapchainCreate(GLFWwindow *window, VkSurfaceKHR *surface,
+                                     VkPhysicalDevice *pDevice,
+                                     VkDevice *device,
+                                     QueueFamilyIndices *indices) {
+
+  swapchainDetails swapchainSupport = swapchainGetSupport(*pDevice, *surface);
+  VkSurfaceFormatKHR surfaceFormat = swapchainChooseFormat(swapchainSupport);
+  VkPresentModeKHR presentMode = swapchainChoosePresentMode(swapchainSupport);
+  VkExtent2D extent = swapchainChooseSwapExtent(window, swapchainSupport);
+
+  uint32_t imageCount = swapchainSupport.surfCapabilities.minImageCount + 1;
+  if (swapchainSupport.surfCapabilities.minImageCount > 0 &&
+      imageCount > swapchainSupport.surfCapabilities.maxImageCount) {
+    imageCount = swapchainSupport.surfCapabilities.maxImageCount;
+  }
+
+  // INFO: possible segfault here??
+  VkSwapchainCreateInfoKHR createInfo = {};
+  createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+  createInfo.surface = *surface;
+  createInfo.minImageCount = imageCount;
+  createInfo.imageFormat = surfaceFormat.format;
+  createInfo.imageColorSpace = surfaceFormat.colorSpace;
+  createInfo.imageExtent = extent;
+  createInfo.imageArrayLayers = 1;
+  createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+  if (indices->graphicsQueue.value != indices->presentationQueue.value) {
+    createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+    createInfo.queueFamilyIndexCount = 2;
+
+    uint32_t queueIndices[] = {indices->graphicsQueue.value,
+                               indices->presentationQueue.value};
+
+    createInfo.pQueueFamilyIndices = queueIndices;
+
+  } else {
+    createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    createInfo.queueFamilyIndexCount = 0;
+    createInfo.pQueueFamilyIndices = NULL;
+  }
+
+  createInfo.preTransform = swapchainSupport.surfCapabilities.currentTransform;
+  createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+  createInfo.presentMode = presentMode;
+  createInfo.clipped = VK_TRUE;
+  createInfo.oldSwapchain = VK_NULL_HANDLE;
+
+  VkSwapchainKHR swapchain;
+  if (vkCreateSwapchainKHR(*device, &createInfo, NULL, &swapchain) !=
+      VK_SUCCESS) {
+    printf("%s", "failed to create swap chain!");
+  }
+
+  return swapchain;
 }
