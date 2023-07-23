@@ -22,8 +22,10 @@ const bool ENABLE_VALIDATION = true;
 const bool ENABLE_VALIDATION = false;
 #endif // DEBUG
 
+#include "vulkanInstance.h"
 #include "vulkanInstanceHelper.h"
 #include "vulkanInstanceLogicalDevice.h"
+#include "vulkanInstancePhysicalDevice.h"
 #include "window.h"
 
 // check if all the validation layers actually exist
@@ -117,11 +119,16 @@ int vulkanInit(VkInstance *instance, GLFWwindow *window) {
   QueueHandles graphicsQueue =
       deviceGetQueueHandles(&physicalDevice, &logicalDevice, &surface);
 
+  // make swapchain
+  VkSwapchainKHR swapchain =
+      deviceSwapchainCreate(window, &surface, &physicalDevice, &logicalDevice);
+
   return EXIT_SUCCESS;
 }
 
 int vulkanCleanup(GLFWwindow *window, VkInstance *instance, VkDevice *lDevice,
-                  VkSurfaceKHR *surface) {
+                  VkSurfaceKHR *surface, VkSwapchainKHR *swapchain) {
+  vkDestroySwapchainKHR(*lDevice, *swapchain, NULL);
   vkDestroySurfaceKHR(*instance, *surface, NULL);
   vkDestroyDevice(*lDevice, NULL);
   vkDestroyInstance(*instance, NULL);

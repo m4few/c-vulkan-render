@@ -136,9 +136,9 @@ VkPhysicalDevice deviceChoose(VkInstance *instance, VkSurfaceKHR *surface) {
 
 VkSwapchainKHR deviceSwapchainCreate(GLFWwindow *window, VkSurfaceKHR *surface,
                                      VkPhysicalDevice *pDevice,
-                                     VkDevice *device,
-                                     QueueFamilyIndices *indices) {
+                                     VkDevice *device) {
 
+  QueueFamilyIndices indices = findQueueFamilies(pDevice, surface);
   swapchainDetails swapchainSupport = swapchainGetSupport(*pDevice, *surface);
   VkSurfaceFormatKHR surfaceFormat = swapchainChooseFormat(swapchainSupport);
   VkPresentModeKHR presentMode = swapchainChoosePresentMode(swapchainSupport);
@@ -161,12 +161,12 @@ VkSwapchainKHR deviceSwapchainCreate(GLFWwindow *window, VkSurfaceKHR *surface,
   createInfo.imageArrayLayers = 1;
   createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-  if (indices->graphicsQueue.value != indices->presentationQueue.value) {
+  if (indices.graphicsQueue.value != indices.presentationQueue.value) {
     createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
     createInfo.queueFamilyIndexCount = 2;
 
-    uint32_t queueIndices[] = {indices->graphicsQueue.value,
-                               indices->presentationQueue.value};
+    uint32_t queueIndices[] = {indices.graphicsQueue.value,
+                               indices.presentationQueue.value};
 
     createInfo.pQueueFamilyIndices = queueIndices;
 
@@ -185,7 +185,9 @@ VkSwapchainKHR deviceSwapchainCreate(GLFWwindow *window, VkSurfaceKHR *surface,
   VkSwapchainKHR swapchain;
   if (vkCreateSwapchainKHR(*device, &createInfo, NULL, &swapchain) !=
       VK_SUCCESS) {
-    printf("%s", "failed to create swap chain!");
+    printf("%s\n", "failed to create swap chain!");
+  } else {
+    printf("%s\n", "yay swapchain");
   }
 
   return swapchain;
