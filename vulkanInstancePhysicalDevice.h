@@ -144,13 +144,15 @@ VkSwapchainKHR deviceSwapchainCreate(GLFWwindow *window, VkSurfaceKHR *surface,
   VkPresentModeKHR presentMode = swapchainChoosePresentMode(swapchainSupport);
   VkExtent2D extent = swapchainChooseSwapExtent(window, swapchainSupport);
 
+  // NOTE: THIS IS AN ISSUE OF SOME DESCRIPTION, MIN BIGGER THAN MAX
+  // THIS COULD CAUSE ISSUES IN THE FUTURE (IE WITH OTHER DEVICES)
   uint32_t imageCount = swapchainSupport.surfCapabilities.minImageCount + 1;
   if (swapchainSupport.surfCapabilities.minImageCount > 0 &&
-      imageCount > swapchainSupport.surfCapabilities.maxImageCount) {
+      imageCount > swapchainSupport.surfCapabilities.maxImageCount &&
+      swapchainSupport.surfCapabilities.maxImageCount != 0) {
     imageCount = swapchainSupport.surfCapabilities.maxImageCount;
   }
 
-  // INFO: possible segfault here??
   VkSwapchainCreateInfoKHR createInfo = {};
   createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
   createInfo.surface = *surface;
@@ -185,9 +187,7 @@ VkSwapchainKHR deviceSwapchainCreate(GLFWwindow *window, VkSurfaceKHR *surface,
   VkSwapchainKHR swapchain;
   if (vkCreateSwapchainKHR(*device, &createInfo, NULL, &swapchain) !=
       VK_SUCCESS) {
-    printf("%s\n", "failed to create swap chain!");
-  } else {
-    printf("%s\n", "yay swapchain");
+    printf("%s\n", "failed to create swapchain!");
   }
 
   return swapchain;
