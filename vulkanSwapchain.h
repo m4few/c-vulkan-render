@@ -11,14 +11,20 @@ typedef struct {
 
   VkSurfaceFormatKHR *surfFormats;
   uint32_t surfFormatCount;
-
   VkPresentModeKHR *presentModes;
   uint32_t presentModeCount;
-} swapchainDetails;
+} SwapchainDetails;
 
-swapchainDetails swapchainGetSupport(VkPhysicalDevice device,
+typedef struct {
+  VkSwapchainKHR swapchain;
+  SwapchainDetails details;
+  uint32_t imageCount;
+  VkImage *imageHandles;
+} DeviceSwapchainInfo;
+
+SwapchainDetails swapchainGetSupport(VkPhysicalDevice device,
                                      VkSurfaceKHR surface) {
-  swapchainDetails details;
+  SwapchainDetails details;
 
   // fill struct
   vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface,
@@ -49,7 +55,7 @@ swapchainDetails swapchainGetSupport(VkPhysicalDevice device,
   return details;
 }
 
-VkSurfaceFormatKHR swapchainChooseFormat(swapchainDetails details) {
+VkSurfaceFormatKHR swapchainChooseFormat(SwapchainDetails details) {
   for (uint32_t i = 0; i < details.surfFormatCount; i++) {
     VkSurfaceFormatKHR surfaceFormat = details.surfFormats[i];
 
@@ -62,7 +68,7 @@ VkSurfaceFormatKHR swapchainChooseFormat(swapchainDetails details) {
   return details.surfFormats[0];
 }
 
-VkPresentModeKHR swapchainChoosePresentMode(swapchainDetails details) {
+VkPresentModeKHR swapchainChoosePresentMode(SwapchainDetails details) {
   for (uint32_t i = 0; i < details.presentModeCount; i++) {
     VkPresentModeKHR mode = details.presentModes[i];
 
@@ -75,7 +81,7 @@ VkPresentModeKHR swapchainChoosePresentMode(swapchainDetails details) {
 }
 
 VkExtent2D swapchainChooseSwapExtent(GLFWwindow *window,
-                                     swapchainDetails details) {
+                                     SwapchainDetails details) {
   if (details.surfCapabilities.currentExtent.width != UINT_MAX) {
     return details.surfCapabilities.currentExtent;
   } else {
@@ -93,4 +99,18 @@ VkExtent2D swapchainChooseSwapExtent(GLFWwindow *window,
 
     return extent;
   }
+}
+
+VkImage *swapchainGetImageHandles(VkDevice device,
+                                  DeviceSwapchainInfo *swapInfo) {
+
+  vkGetSwapchainImagesKHR(device, swapInfo->swapchain, &(swapInfo->imageCount),
+                          NULL);
+
+  VkImage *images = (VkImage *)malloc(sizeof(VkImage) * swapInfo->imageCount);
+
+  vkGetSwapchainImagesKHR(device, swapInfo->swapchain, &(swapInfo->imageCount),
+                          images);
+
+  return images;
 }

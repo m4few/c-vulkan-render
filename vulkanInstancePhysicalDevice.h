@@ -10,6 +10,7 @@
 
 #include "vulkanInstance.h"
 #include "vulkanInstanceHelper.h"
+#include "vulkanSwapchain.h"
 
 // the indicies of various queue families
 // think of it as a hashmap
@@ -17,8 +18,6 @@ typedef struct {
   uint32_opt graphicsQueue;
   uint32_opt presentationQueue;
 } QueueFamilyIndices;
-
-#include "vulkanSwapchain.h"
 
 const uint8_t QUEUE_COUNT = 2;
 const QueueFamilyIndices QUEUE_INDICES_DEFAULT = {{false, 0}};
@@ -56,7 +55,7 @@ bool deviceHasAllExtensions(VkPhysicalDevice *device) {
 }
 
 bool deviceHasUsableSwapchain(VkPhysicalDevice *device, VkSurfaceKHR *surface) {
-  swapchainDetails details = swapchainGetSupport(*device, *surface);
+  SwapchainDetails details = swapchainGetSupport(*device, *surface);
   return details.surfFormatCount > 0 && details.presentModeCount > 0;
 }
 
@@ -134,12 +133,15 @@ VkPhysicalDevice deviceChoose(VkInstance *instance, VkSurfaceKHR *surface) {
   return physicalDevice;
 }
 
-VkSwapchainKHR deviceSwapchainCreate(GLFWwindow *window, VkSurfaceKHR *surface,
-                                     VkPhysicalDevice *pDevice,
-                                     VkDevice *device) {
+DeviceSwapchainInfo deviceSwapchainCreate(GLFWwindow *window,
+                                          VkSurfaceKHR *surface,
+                                          VkPhysicalDevice *pDevice,
+                                          VkDevice *device) {
+
+  DeviceSwapchainInfo swapInfo = {};
 
   QueueFamilyIndices indices = findQueueFamilies(pDevice, surface);
-  swapchainDetails swapchainSupport = swapchainGetSupport(*pDevice, *surface);
+  SwapchainDetails swapchainSupport = swapchainGetSupport(*pDevice, *surface);
   VkSurfaceFormatKHR surfaceFormat = swapchainChooseFormat(swapchainSupport);
   VkPresentModeKHR presentMode = swapchainChoosePresentMode(swapchainSupport);
   VkExtent2D extent = swapchainChooseSwapExtent(window, swapchainSupport);
@@ -190,5 +192,10 @@ VkSwapchainKHR deviceSwapchainCreate(GLFWwindow *window, VkSurfaceKHR *surface,
     printf("%s\n", "failed to create swapchain!");
   }
 
-  return swapchain;
+  swapInfo.swapchain = swapchain;
+  swapInfo.details = swapchainSupport;
+  swapInfo.imageCount = imageCount;
+  swapInfo.imageHandles = swapchainGetImageHandles(*device, &swapInfo);
+
+  return swapInfo;
 }
