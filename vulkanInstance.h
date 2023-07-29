@@ -120,8 +120,13 @@ int vulkanInit(VkInstance *instance, GLFWwindow *window) {
       deviceGetQueueHandles(&physicalDevice, &logicalDevice, &surface);
 
   // make swapchain
-  VkSwapchainKHR swapchain =
+  DeviceSwapchainInfo swapchainInfo =
       deviceSwapchainCreate(window, &surface, &physicalDevice, &logicalDevice);
+
+  // NOTE: this is a repeat of a call in deviceSwapchainCreate(), it could be
+  // cut out if swapchainCreate passes a struct with other info
+  //  it could even have the image handles in the struct, making this section
+  //  completely uneccessary
 
   return EXIT_SUCCESS;
 }
