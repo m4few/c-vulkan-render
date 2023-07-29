@@ -196,6 +196,7 @@ DeviceSwapchainInfo deviceSwapchainCreate(GLFWwindow *window,
   swapInfo.details = swapchainSupport;
   swapInfo.imageCount = imageCount;
   swapInfo.imageHandles = swapchainGetImageHandles(*device, &swapInfo);
+  swapInfo.imageViews = swapchainCreateImageViews(*device, &swapInfo);
 
   return swapInfo;
 }
