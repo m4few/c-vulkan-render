@@ -1,6 +1,7 @@
 #pragma once
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
 
@@ -47,4 +48,12 @@ bool strEq(const char *str1, const char *str2) {
 int clamp(int x, int min, int max) {
   const int t = x < min ? min : x;
   return t > max ? max : t;
+}
+
+int32_t fileGetLength(FILE *fp) {
+  fseek(fp, 0L, SEEK_END);
+  int32_t size = ftell(fp);
+  rewind(fp);
+
+  return size;
 }
