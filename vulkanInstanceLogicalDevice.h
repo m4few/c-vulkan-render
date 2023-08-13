@@ -3,9 +3,6 @@
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
 
-#include "vulkanInstance.h"
-#include "vulkanInstancePhysicalDevice.h"
-
 // NOTE: THERES A HACK HERE TO ACCESS THESE STRUCTS AS ARRAYS
 //  IF ANYTHING WEIRD HAPPENS, ITS PROBABLY THAT
 typedef struct {

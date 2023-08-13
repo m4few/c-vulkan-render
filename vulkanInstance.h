@@ -22,12 +22,6 @@ const bool ENABLE_VALIDATION = true;
 const bool ENABLE_VALIDATION = false;
 #endif // DEBUG
 
-#include "vulkanInstance.h"
-#include "vulkanInstanceHelper.h"
-#include "vulkanInstanceLogicalDevice.h"
-#include "vulkanInstancePhysicalDevice.h"
-#include "window.h"
-
 bool validationSupported();
 
 int vulkanMakeInstance(VkInstance *instance);

@@ -8,9 +8,7 @@
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
 
-#include "vulkanInstance.h"
 #include "vulkanInstanceHelper.h"
-#include "vulkanSwapchain.h"
 
 // the indicies of various queue families
 // think of it as a hashmap
@@ -20,7 +18,7 @@ typedef struct {
 } QueueFamilyIndices;
 
 const uint8_t QUEUE_COUNT = 2;
-const QueueFamilyIndices QUEUE_INDICES_DEFAULT = {{false, 0}};
+const QueueFamilyIndices QUEUE_INDICES_DEFAULT = {false, 0};
 
 bool deviceHasAllQueues(QueueFamilyIndices indices);
 
@@ -36,8 +34,3 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice *device,
 bool deviceIsUsable(VkPhysicalDevice *device, VkSurfaceKHR *surface);
 
 VkPhysicalDevice deviceChoose(VkInstance *instance, VkSurfaceKHR *surface);
-
-DeviceSwapchainInfo deviceSwapchainCreate(GLFWwindow *window,
-                                          VkSurfaceKHR *surface,
-                                          VkPhysicalDevice *pDevice,
-                                          VkDevice *device);

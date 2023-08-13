@@ -9,7 +9,7 @@ typedef struct {
   bool exists;
   uint32_t value;
 } uint32_opt;
-uint32_opt uint32_opt_DEFAULT = {false, 0};
+const uint32_opt uint32_opt_DEFAULT = {false, 0};
 
 int uint32_optInit(uint32_opt *x);
 

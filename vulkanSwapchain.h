@@ -1,4 +1,4 @@
-#include "vulkanInstanceHelper.h"
+#pragma once
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 #include <limits.h>
@@ -39,3 +39,8 @@ VkImage *swapchainGetImageHandles(VkDevice device,
 
 VkImageView *swapchainCreateImageViews(VkDevice device,
                                        DeviceSwapchainInfo *swapInfo);
+
+DeviceSwapchainInfo deviceSwapchainCreate(GLFWwindow *window,
+                                          VkSurfaceKHR *surface,
+                                          VkPhysicalDevice *pDevice,
+                                          VkDevice *device);

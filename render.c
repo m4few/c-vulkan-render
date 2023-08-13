@@ -3,6 +3,9 @@
 #include <vulkan/vulkan.h>
 
 #include "vulkanInstance.h"
+#include "vulkanInstanceLogicalDevice.h"
+#include "vulkanInstancePhysicalDevice.h"
+#include "vulkanSwapchain.h"
 #include "window.h"
 
 // vulkanInstanceHelper.h
