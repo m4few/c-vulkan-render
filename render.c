@@ -5,7 +5,7 @@
 #include "vulkanInstance.h"
 #include "window.h"
 
-//vulkanInstanceHelper.h
+// vulkanInstanceHelper.h
 int uint32_optInit(uint32_opt *x) {
   *x = uint32_opt_DEFAULT;
   return EXIT_SUCCESS;
@@ -476,7 +476,15 @@ GLFWwindow *windowInit(uint16_t winX, uint16_t winY) {
   return win;
 }
 
-VkSurfaceKHR windowCreateSurface(VkInstance *instance, GLFWwindow *window)
+VkSurfaceKHR windowCreateSurface(VkInstance *instance, GLFWwindow *window) {
+  VkSurfaceKHR surface;
+  bool result = glfwCreateWindowSurface(*instance, window, NULL, &surface);
+  if (result != VK_SUCCESS) {
+    printf("ERR: FAILED TO CREATE SURFACE!!!");
+  }
+
+  return surface;
+}
 
 int windowExit(GLFWwindow *window) {
   glfwDestroyWindow(window);

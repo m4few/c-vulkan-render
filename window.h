@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void glfwCallback(int err, const char *msg) { printf(" [%d] %s\n", err, msg); }
+void glfwCallback(int err, const char *msg);
 
 GLFWwindow *windowInit(uint16_t winX, uint16_t winY);
 
