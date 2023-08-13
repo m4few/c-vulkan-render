@@ -22,3 +22,7 @@ bool strEq(const char *str1, const char *str2);
 int clamp(int x, int min, int max);
 
 int32_t fileGetLength(FILE *fp);
+
+int clamp(int x, int min, int max);
+
+int32_t fileGetLength(FILE *fp);
