@@ -1,4 +1,6 @@
 #include "vulkanInstanceHelper.h"
+#include <stdint.h>
+#include <stdlib.h>
 
 int uint32_optInit(uint32_opt *x) {
   *x = uint32_opt_DEFAULT;
@@ -45,4 +47,12 @@ int32_t fileGetLength(FILE *fp) {
   rewind(fp);
 
   return size;
+}
+
+int fileReadIn(FILE *fp, char *buffer, uint32_t size) {
+  if (fp == NULL) {
+    return EXIT_FAILURE;
+  }
+  fgets(buffer, size, fp);
+  return EXIT_SUCCESS;
 }

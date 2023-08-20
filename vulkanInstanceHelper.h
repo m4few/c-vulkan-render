@@ -23,6 +23,6 @@ int clamp(int x, int min, int max);
 
 int32_t fileGetLength(FILE *fp);
 
-int clamp(int x, int min, int max);
+int fileReadIn(FILE *fp, char *buffer, uint32_t size);
 
-int32_t fileGetLength(FILE *fp);
+int clamp(int x, int min, int max);
