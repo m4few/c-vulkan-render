@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <vulkan/vulkan_core.h>
 
+#include "vulkanInstancePhysicalDevice.h"
+
 typedef struct {
   VkSurfaceCapabilitiesKHR surfCapabilities;
 

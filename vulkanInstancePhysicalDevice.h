@@ -8,6 +8,7 @@
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
 
+#include "vulkanInstance.h"
 #include "vulkanInstanceHelper.h"
 
 // the indicies of various queue families
@@ -17,8 +18,8 @@ typedef struct {
   uint32_opt presentationQueue;
 } QueueFamilyIndices;
 
-const uint8_t QUEUE_COUNT = 2;
-const QueueFamilyIndices QUEUE_INDICES_DEFAULT = {false, 0};
+extern const uint8_t QUEUE_COUNT;
+extern const QueueFamilyIndices QUEUE_INDICES_DEFAULT;
 
 bool deviceHasAllQueues(QueueFamilyIndices indices);
 
