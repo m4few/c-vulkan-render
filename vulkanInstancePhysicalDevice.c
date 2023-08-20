@@ -1,5 +1,8 @@
-#pragma once
 #include "vulkanInstancePhysicalDevice.h"
+
+const uint8_t QUEUE_COUNT = 2;
+const QueueFamilyIndices QUEUE_INDICES_DEFAULT = {false, 0};
+const uint32_opt uint32_opt_DEFAULT = {false, 0};
 
 bool deviceHasAllQueues(QueueFamilyIndices indices) {
   return indices.graphicsQueue.exists && indices.presentationQueue.exists;

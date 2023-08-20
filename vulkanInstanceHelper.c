@@ -1,4 +1,3 @@
-#pragma once
 #include "vulkanInstanceHelper.h"
 
 int uint32_optInit(uint32_opt *x) {

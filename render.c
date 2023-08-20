@@ -1,7 +1,9 @@
-#pragma once
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <vulkan/vulkan.h>
+
+#include "vulkanInstance.h"
+#include "window.h"
 
 int main() {
   // start window

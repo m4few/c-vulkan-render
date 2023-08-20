@@ -1,4 +1,3 @@
-#pragma once
 #include "vulkanSwapchain.h"
 
 SwapchainDetails swapchainGetSupport(VkPhysicalDevice device,

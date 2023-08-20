@@ -1,4 +1,3 @@
-#pragma once
 #include "vulkanInstanceLogicalDevice.h"
 
 VkDevice deviceCreateLogical(VkPhysicalDevice *physicalDevice,

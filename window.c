@@ -1,4 +1,3 @@
-#pragma once
 #include "window.h"
 
 void glfwCallback(int err, const char *msg) { printf(" [%d] %s\n", err, msg); }

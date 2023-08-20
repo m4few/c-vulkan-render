@@ -4,6 +4,7 @@
 #define GLFW_INLCUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
